@@ -1,0 +1,183 @@
+info:
+  title: "BACKEND CODING TEST"
+  version: "1.0.0"
+  description: "API Documentation for Backend coding test"
+openapi: "3.0.0"
+servers:
+  - url: "http://localhost:8010"
+    description: "Development Server"
+components:
+  schemas:
+    RideNotFound:
+      type: "object"
+      properties:
+        error_code:
+          type: "string"
+          example: 'RIDES_NOT_FOUND_ERROR'
+        message:
+          type: "string"
+          example: 'Could not find any rides'
+    Ride:
+      type: "object"
+      properties:
+        rideID:
+          type: integer
+          format: int64
+          example: 1
+        startLat:
+          type: "number"
+          example: 106.6894322
+        startLong:
+          type: "number"
+          example: -6.2293867
+        endLat:
+          type: "number"
+          example: 106.9668567
+        endLong:
+          type: "number"
+          example: -6.2673575
+        riderName:
+          type: "string"
+          example: "John"
+        driverName:
+          type: "string"
+          example: "John"
+        driverVehicle:
+          type: "string"
+          example: "Toyota Vios"
+        created:
+          type: "string"
+          example: "2020-01-01"
+    RideInputValidation:
+      type: "object"
+      properties:
+        startLat:
+          type: "number"
+          example: 106.6894322
+        startLong:
+          type: "number"
+          example: -6.2293867
+        endLat:
+          type: "number"
+          example: 106.9668567
+        endLong:
+          type: "number"
+          example: -6.2673575
+        riderName:
+          type: "string"
+          example: "John"
+        driverName:
+          type: "string"
+          example: "John"
+        driverVehicle:
+          type: "string"
+          example: "Toyota Vios"
+      required:
+        - startLat
+        - startLong
+        - endLat
+        - endLong
+        - riderName
+        - driverName
+        - driverVehicle
+  securitySchemes:
+    apiKey:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: "Protected Requests should have Authorization Header that contains API - Key"
+paths:
+  /health:
+    get:
+      tags:
+        - "Server Heath"
+      summary: "Health"
+      description: "Endpoint to test server availability"
+      responses:
+        200:
+          description: "Healthy"
+          content:
+            application/json:
+              schema:
+                type: "string"
+                example: "Healthy"
+  /rides:
+    get:
+      tags:
+        - "Rides"
+      summary: "Get Ride List"
+      description: "Endpoint that returns list of Rides"
+      responses:
+        200:
+          description: "Ride List"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/Ride"
+        400:
+          description: "Ride Not found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RideNotFound"
+    post:
+      tags:
+        - "Rides"
+      summary: "Save Ride in DB"
+      description: "Endpoint that allows user to save Ride information to DB"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RideInputValidation"
+      responses:
+        200:
+          description: "Successfully saved Ride in DB"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Ride"
+        400:
+          description: "Validation Error"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error_code:
+                    type: "string"
+                    example: 'VALIDATION_ERROR'
+                  message:
+                    type: "string"
+                    example: 'Start latitude and longitude must be between -90 - 90 and -180 to 180 degrees respectively'
+  /rides/{id}:
+    get:
+      tags:
+        - "Rides"
+      summary: "Get Ride by ID"
+      description: "Endpoint that returns Ride information through Ride ID"
+      parameters:
+        - name: id
+          in: path
+          description: "Ride ID"
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        200:
+          description: "Ride Information"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Ride"
+        400:
+          description: "Ride Not found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RideNotFound"
+security:
+  - apiKey: []

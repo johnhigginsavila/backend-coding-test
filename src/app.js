@@ -1,13 +1,34 @@
 'use strict';
 
 const express = require('express');
+const path = require('path');
 const app = express();
 
 const bodyParser = require('body-parser');
+const swaggerUi = require('swagger-ui-express');
+const YAML = require('yamljs');
 const jsonParser = bodyParser.json();
 
 module.exports = (db) => {
-    app.get('/health', (req, res) => res.send('Healthy'));
+
+    if (process.env.NODE_ENV == 'development') {
+        // Adding Documentation during Development
+        app.use(function(req, res, next) {
+            res.header('Access-Control-Allow-Origin', '*');
+            res.header('Access-Control-Allow-Methods', 'PUT, GET, POST, DELETE, OPTIONS');
+            res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+            next();
+        });
+
+        const swaggerDocument = YAML.load(path.resolve(__dirname, '..', 'tools/documentation.yaml'));
+ 
+        // This endpoint allows user to view API Documentation in web browser using swagger UI
+        // RUN the app using: `npm run dev` command
+        // CLICK THIS LINK: http://localhost:8010/api-docs       
+        app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+    }
+
+    app.get('/health', (req, res) => res.status(200).send('Healthy'));
 
     app.post('/rides', jsonParser, (req, res) => {
         const startLatitude = Number(req.body.start_lat);
