@@ -11,6 +11,7 @@ const jsonParser = bodyParser.json();
 const handlers = require('./handlers');
 const middlewares = require('./middleware_setup');
 
+
 const swaggerDocument =
     YAML.load(path.resolve(__dirname, '..', 'tools/documentation.yaml'));
 module.exports = (db) => {
@@ -28,6 +29,7 @@ module.exports = (db) => {
   app.post('/rides',
       jsonParser,
       handlers.postRide.validateInput,
+      ...handlers.postRide.sanitizeRequestBody,
       handlers.postRide.generateQuery,
       handlers.postRide.runQuery,
       handlers.postRide.getInsertedRide,
@@ -35,12 +37,14 @@ module.exports = (db) => {
   );
 
   app.get('/rides',
+      ...handlers.getRides.sanitizeInput,
       handlers.getRides.generateQuery,
       handlers.getRides.getRides,
       handlers.getRides.respond,
   );
 
   app.get('/rides/:id',
+      ...handlers.getRides.sanitizeInput,
       handlers.getRides.generateQueryById,
       handlers.getRides.getRides,
       handlers.getRides.respond,

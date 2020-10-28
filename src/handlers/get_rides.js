@@ -1,4 +1,12 @@
 /* eslint-disable require-jsdoc */
+const {
+  param,
+} = require('express-validator');
+
+const sanitizeInput = [
+  param('id').toInt(),
+];
+
 function generateQuery(req, res, next) {
   let {
     page = 1,
@@ -7,17 +15,22 @@ function generateQuery(req, res, next) {
   if (page < 1) {
     page = 1;
   }
-  const offset = limit * (page - 1);
-  const queryString = `SELECT * FROM Rides LIMIT ${limit} 
-    OFFSET ${offset}`;
+
+  const p = Number(page) || 1;
+  const l = Number(limit) || 10;
+
+  const offset = l * (p - 1);
+  const queryString = `SELECT * FROM Rides LIMIT ? 
+    OFFSET ?`;
 
   req.$scope.queryString = queryString;
+  req.$scope.values = [l, offset];
 
   next();
 }
 
 function generateQueryById(req, res, next) {
-  const queryString = `SELECT * FROM Rides WHERE rideID='${req.params.id}'`;
+  const queryString = `SELECT * FROM Rides WHERE rideID=?`;
 
   req.$scope.queryString = queryString;
 
@@ -26,8 +39,10 @@ function generateQueryById(req, res, next) {
 
 async function getRides(req, res, next) {
   const queryString = req.$scope.queryString;
+  const id = req.params.id;
+  const values = id || req.$scope.values;
   try {
-    const rides = await req.dbAsync.allAsync(queryString);
+    const rides = await req.dbAsync.allAsync(queryString, values);
 
     req.logger.info({
       rows: rides.length,
@@ -60,6 +75,7 @@ function respond(req, res) {
 }
 
 module.exports = {
+  sanitizeInput,
   generateQuery,
   generateQueryById,
   getRides,

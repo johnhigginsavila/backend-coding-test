@@ -1,6 +1,19 @@
 /* eslint-disable require-jsdoc */
 const Promise = require('bluebird');
 const internals = {};
+const {
+  body,
+} = require('express-validator');
+
+const sanitizeRequestBody = [
+  body('start_lat').trim().toFloat(),
+  body('end_lat').trim().toFloat(),
+  body('start_long').trim().toFloat(),
+  body('end_long').trim().toFloat(),
+  body('rider_name').trim().escape(),
+  body('driver_name').trim().escape(),
+  body('driver_vehicle').trim().escape(),
+];
 
 internals.runInsertPromise = function(db, query, values) {
   return new Promise((res, rej) => {
@@ -132,6 +145,7 @@ function respond(req, res) {
 }
 
 module.exports = {
+  sanitizeRequestBody,
   validateInput,
   generateQuery,
   runQuery,
