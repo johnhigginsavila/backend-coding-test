@@ -7,12 +7,12 @@
     "test": "tests"
   },
   "scripts": {
-    "test": "mocha tests",
-    "test-coverage": "nyc mocha tests",
+    "test": "NODE_ENV=test mocha tests",
+    "test-coverage": "NODE_ENV=test nyc mocha tests",
     "start": "node index.js",
     "lint": "eslint src/**",
-    "coverage": "nyc --reporter=text --reporter=html --reporter=json-summary mocha tests --recursive",
-    "coverage-check": "nyc check-coverage --reporter=text-summary -- mocha tests --recursive",
+    "coverage": "NODE_ENV=test nyc --reporter=text --reporter=html --reporter=json-summary mocha tests --recursive",
+    "coverage-check": "NODE_ENV=test nyc check-coverage --reporter=text-summary -- mocha tests --recursive",
     "dev": "NODE_ENV=development node index.js"
   },
   "pre-push": [
@@ -25,6 +25,7 @@
   "author": "Bo",
   "license": "ISC",
   "dependencies": {
+    "bluebird": "^3.7.2",
     "body-parser": "^1.19.0",
     "express": "^4.16.4",
     "nyc": "^15.1.0",
