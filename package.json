@@ -8,9 +8,17 @@
   },
   "scripts": {
     "test": "mocha tests",
+    "test-coverage": "nyc mocha tests",
     "start": "node index.js",
+    "lint": "eslint src/**",
+    "coverage": "nyc --reporter=text --reporter=html --reporter=json-summary mocha tests --recursive",
+    "coverage-check": "nyc check-coverage --reporter=text-summary -- mocha tests --recursive",
     "dev": "NODE_ENV=development node index.js"
   },
+  "pre-push": [
+    "lint",
+    "test"
+  ],
   "keywords": [
     "Xendit"
   ],
@@ -19,12 +27,19 @@
   "dependencies": {
     "body-parser": "^1.19.0",
     "express": "^4.16.4",
+    "nyc": "^15.1.0",
     "sqlite3": "^4.0.6",
     "swagger-ui-express": "^4.1.4",
+    "winston": "^3.3.3",
     "yamljs": "^0.3.0"
   },
   "devDependencies": {
+    "chai": "^4.2.0",
+    "eslint": "^7.12.1",
+    "eslint-config-google": "^0.14.0",
     "mocha": "^6.1.4",
+    "pre-push": "^0.1.1",
+    "sinon": "^9.2.0",
     "supertest": "^4.0.2"
   }
 }
