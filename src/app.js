@@ -9,22 +9,30 @@ const swaggerUi = require('swagger-ui-express');
 const YAML = require('yamljs');
 const jsonParser = bodyParser.json();
 const winston = require('winston');
+const {createLogger, format, transports} = winston;
+const {combine, timestamp, prettyPrint} = format;
 
 module.exports = (db) => {
-  const logger = winston.createLogger({
+  const logger = createLogger({
     level: 'info',
     format: winston.format.json(),
-    defaultMeta: {service: 'user-service'},
+    defaultMeta: {service: 'backend-coding-test'},
     transports: [
       //
       // - Write all logs with level `error` and below to `error.log`
       // - Write all logs with level `info` and below to `combined.log`
       //
-      new winston.transports.File({
+      new transports.File({
         filename: path.resolve(__dirname, '..', 'error.log'), level: 'error',
       }),
-      new winston.transports.File({
+      new transports.File({
         filename: path.resolve(__dirname, '..', 'combined.log'),
+      }),
+      new transports.Console({
+        format: combine(
+            timestamp(),
+            prettyPrint(),
+        ),
       }),
     ],
   });
@@ -136,13 +144,29 @@ module.exports = (db) => {
   });
 
   app.get('/rides', (req, res) => {
-    db.all('SELECT * FROM Rides', function(err, rows) {
+    let {
+      page = 1,
+      limit = 10,
+    } = req.query;
+    if (page < 1) {
+      page = 1;
+    }
+    const offset = limit * (page - 1);
+    const queryString = `SELECT * FROM Rides LIMIT ${limit} 
+      OFFSET ${offset}`;
+    db.all(queryString, function(err, rows) {
       if (err) {
+        req.logger.error(err);
         return res.status(500).send({
           error_code: 'SERVER_ERROR',
           message: 'Unknown error',
         });
       }
+
+      req.logger.info({
+        rows: rows.length,
+        endpoint: 'GET /rides',
+      });
 
       if (rows.length === 0) {
         return res.send({

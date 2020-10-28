@@ -191,6 +191,22 @@ describe('API tests', () => {
             })
             .end(done);
       });
+
+      it('should return pagified list', (done) => {
+        request(app)
+            .get('/rides?page=0')
+            .expect(function(res) {
+              expect(res.body[0].startLat).to.equal(fixtures.ride.startLat);
+              expect(res.body[0].startLong).to.equal(fixtures.ride.startLong);
+              expect(res.body[0].endLat).to.equal(fixtures.ride.endLat);
+              expect(res.body[0].endLong).to.equal(fixtures.ride.endLong);
+              expect(res.body[0].riderName).to.equal(fixtures.ride.riderName);
+              expect(res.body[0].driverName).to.equal(fixtures.ride.driverName);
+              expect(res.body[0].driverVehicle)
+                  .to.equal(fixtures.ride.driverVehicle);
+            })
+            .end(done);
+      });
     });
 
     describe('GET /rides SERVER ERROR', () => {
