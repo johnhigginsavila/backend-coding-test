@@ -26,16 +26,16 @@ components:
           example: 1
         startLat:
           type: "number"
-          example: 106.6894322
+          example: -6.2293867
         startLong:
           type: "number"
-          example: -6.2293867
+          example: 106.6894322
         endLat:
           type: "number"
-          example: 106.9668567
+          example: -6.2673575
         endLong:
           type: "number"
-          example: -6.2673575
+          example: 106.9668567
         riderName:
           type: "string"
           example: "John"
@@ -51,35 +51,35 @@ components:
     RideInputValidation:
       type: "object"
       properties:
-        startLat:
-          type: "number"
-          example: 106.6894322
-        startLong:
+        start_lat:
           type: "number"
           example: -6.2293867
-        endLat:
+        start_long:
           type: "number"
-          example: 106.9668567
-        endLong:
+          example: 106.6894322
+        end_lat:
           type: "number"
           example: -6.2673575
-        riderName:
+        end_long:
+          type: "number"
+          example: 106.9668567
+        rider_name:
           type: "string"
           example: "John"
-        driverName:
+        driver_name:
           type: "string"
           example: "John"
-        driverVehicle:
+        driver_vehicle:
           type: "string"
           example: "Toyota Vios"
       required:
-        - startLat
-        - startLong
-        - endLat
-        - endLong
-        - riderName
-        - driverName
-        - driverVehicle
+        - start_lat
+        - start_long
+        - end_lat
+        - end_long
+        - rider_name
+        - driver_name
+        - driver_vehicle
   securitySchemes:
     apiKey:
       type: apiKey
@@ -107,6 +107,17 @@ paths:
         - "Rides"
       summary: "Get Ride List"
       description: "Endpoint that returns list of Rides"
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: The number used to determine query offset
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: The numbers of items to return
       responses:
         200:
           description: "Ride List"
@@ -138,7 +149,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Ride"
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/Ride"
         400:
           description: "Validation Error"
           content:
@@ -172,7 +185,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Ride"
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/Ride"
         400:
           description: "Ride Not found"
           content:
