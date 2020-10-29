@@ -1,0 +1,41 @@
+config:
+  target: "http://localhost:8010"
+  phases:
+    - duration: 30
+      arrivalRate: 100
+      name: Sustained load
+  ensure:
+    p99: 50
+  payload:
+    path: "riders.csv"
+    fields:
+      - "start_lat"
+      - "end_lat"
+      - "start_long"
+      - "end_long"
+      - "rider_name"
+      - "driver_name"
+      - "driver_vehicle"
+scenarios:
+  - name: "Insert Rides"
+    flow:
+      - post:
+          url: "/rides"
+          json:
+            start_long: "{{ start_long }}"
+            start_lat: "{{ start_lat }}"
+            end_long: "{{ end_long }}"
+            end_lat: "{{ end_lat }}"
+            rider_name: "{{ rider_name }}"
+            driver_name: "{{ driver_name }}"
+            driver_vehicle: "{{ driver_vehicle }}"
+          capture:
+            json: "$[0].rideID"
+            as: "id"
+      - get:
+          url: "/rides/{{ id }}"
+  - name: "Get Rides"
+    flow:
+      - get:
+          url: "/rides"
+

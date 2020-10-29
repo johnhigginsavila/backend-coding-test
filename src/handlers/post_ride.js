@@ -3,6 +3,8 @@ const Promise = require('bluebird');
 const internals = {};
 const {
   body,
+  validationResult,
+  check,
 } = require('express-validator');
 
 const sanitizeRequestBody = [
@@ -26,7 +28,16 @@ internals.runInsertPromise = function(db, query, values) {
   });
 };
 
-function validateInput(req, res, next) {
+async function validateInput(req, res, next) {
+  await check('start_lat').notEmpty().isNumeric().run(req);
+  await check('end_lat').notEmpty().isNumeric().run(req);
+  await check('start_long').notEmpty().isNumeric().run(req);
+  await check('end_long').notEmpty().isNumeric().run(req);
+  await check('rider_name').notEmpty().run(req);
+  await check('driver_name').notEmpty().run(req);
+  await check('driver_vehicle').notEmpty().run(req);
+  const results = validationResult(req);
+
   const startLatitude = Number(req.body.start_lat);
   const startLongitude = Number(req.body.start_long);
   const endLatitude = Number(req.body.end_lat);
@@ -34,6 +45,16 @@ function validateInput(req, res, next) {
   const riderName = req.body.rider_name;
   const driverName = req.body.driver_name;
   const driverVehicle = req.body.driver_vehicle;
+
+  if (results.errors.length > 0) {
+    const validationErr = results.errors[0];
+    const message = validationErr.value ?
+      'has Invalid Value' : 'Should not be empty';
+    return res.status(400).send({
+      error_code: 'VALIDATION_ERROR',
+      message: `${validationErr.param} ${message}`,
+    });
+  }
 
   if (startLatitude < -90 ||
       startLatitude > 90 || startLongitude < -180 || startLongitude > 180) {
@@ -53,21 +74,21 @@ function validateInput(req, res, next) {
     });
   }
 
-  if (typeof riderName !== 'string' || riderName.length < 1) {
+  if (typeof riderName !== 'string') {
     return res.status(400).send({
       error_code: 'VALIDATION_ERROR',
       message: 'Rider name must be a non empty string',
     });
   }
 
-  if (typeof driverName !== 'string' || driverName.length < 1) {
+  if (typeof driverName !== 'string') {
     return res.status(400).send({
       error_code: 'VALIDATION_ERROR',
       message: 'Driver name must be a non empty string',
     });
   }
 
-  if (typeof driverVehicle !== 'string' || driverVehicle.length < 1) {
+  if (typeof driverVehicle !== 'string') {
     return res.status(400).send({
       error_code: 'VALIDATION_ERROR',
       message: 'Driver vehicle must be a non empty string',

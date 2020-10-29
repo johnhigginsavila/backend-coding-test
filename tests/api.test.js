@@ -82,13 +82,18 @@ describe('API tests', () => {
       };
 
       const invalidInputs = [
+        {...rideInput, start_lat: 'hello'},
+        {...rideInput, start_lat: null},
         {...rideInput, start_lat: -100},
         {...rideInput, end_lat: -100},
         {...rideInput, rider_name: null},
         {...rideInput, rider_name: ''},
+        {...rideInput, rider_name: 1},
         {...rideInput, driver_name: null},
         {...rideInput, driver_name: ''},
+        {...rideInput, driver_name: 1},
         {...rideInput, driver_vehicle: null},
+        {...rideInput, driver_vehicle: 1},
       ];
       invalidInputs.forEach((invalidInput, index) => {
         describe(`POST /rides Invalid input (${index + 1})`, () => {
