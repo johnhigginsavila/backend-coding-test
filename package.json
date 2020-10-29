@@ -13,7 +13,8 @@
     "lint": "eslint src/**",
     "coverage": "NODE_ENV=test nyc --reporter=text --reporter=html --reporter=json-summary mocha tests --recursive",
     "coverage-check": "NODE_ENV=test nyc check-coverage --reporter=text-summary -- mocha tests --recursive",
-    "dev": "NODE_ENV=development node index.js"
+    "dev": "NODE_ENV=development node index.js",
+    "test:load": "$(npm bin)/artillery run --output report.json load_testing/config.yml"
   },
   "pre-push": [
     "lint",
@@ -36,6 +37,7 @@
     "yamljs": "^0.3.0"
   },
   "devDependencies": {
+    "artillery": "^1.6.1",
     "chai": "^4.2.0",
     "eslint": "^7.12.1",
     "eslint-config-google": "^0.14.0",
